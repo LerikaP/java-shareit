@@ -18,7 +18,7 @@ public class Item {
     private User owner;
     private ItemRequest request;
 
-    public Item (int id, String name, String description, Boolean available) {
+    public Item(int id, String name, String description, Boolean available) {
         this.id = id;
         this.name = name;
         this.description = description;
