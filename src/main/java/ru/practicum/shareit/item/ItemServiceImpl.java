@@ -59,8 +59,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAllItemsByUserId(int userId) {
         userService.getUserById(userId);
-        List<Item> itemsByUserId = itemStorage.getAllItemsByUserId(userId);
-        return itemsByUserId
+        return itemStorage.getAllItemsByUserId(userId)
                 .stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
