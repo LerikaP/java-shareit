@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class InMemoryItemStorage implements ItemStorage {
-    private final Map<Integer, Item> items = new HashMap<>();
+    private final Map<Long, Item> items = new HashMap<>();
     private int userIdGenerator = 1;
 
     @Override
     public Item addItem(Item item) {
-        int id = getNextFreeId();
+        long id = getNextFreeId();
         item.setId(id);
         items.put(id, item);
         return items.get(id);
@@ -24,7 +24,7 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public Item updateItem(Item item) {
-        int id = item.getId();
+        long id = item.getId();
         if (items.containsKey(id)) {
             items.put(id, item);
         } else {
@@ -34,7 +34,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public Item getItemById(int id) {
+    public Item getItemById(long id) {
         if (items.containsKey(id)) {
             return items.get(id);
         } else {
@@ -43,7 +43,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public List<Item> getAllItemsByUserId(int userId) {
+    public List<Item> getAllItemsByUserId(long userId) {
         return items.values()
                 .stream()
                 .filter(item -> item.getOwner().getId() == userId)
@@ -51,7 +51,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public void deleteItemById(int id) {
+    public void deleteItemById(long id) {
         if (items.containsKey(id)) {
             items.remove(id);
         } else {

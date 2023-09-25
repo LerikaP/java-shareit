@@ -10,11 +10,11 @@ public interface ItemStorage {
 
     Item updateItem(Item item);
 
-    Item getItemById(int id);
+    Item getItemById(long id);
 
-    List<Item> getAllItemsByUserId(int userId);
+    List<Item> getAllItemsByUserId(long userId);
 
-    void deleteItemById(int id);
+    void deleteItemById(long id);
 
     List<Item> searchItem(String text);
 }

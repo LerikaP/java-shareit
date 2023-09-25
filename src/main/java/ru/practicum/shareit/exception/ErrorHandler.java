@@ -23,9 +23,23 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleOwnerPermissionException(final OwnerPermissionException e) {
         String eMessage = e.getMessage();
         return new ErrorResponse("Редактировать вещь может только её владелец", eMessage);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBookingValidationException(final BookingValidationException e) {
+        String eMessage = e.getMessage();
+        return new ErrorResponse("Указаны не верные данные", eMessage);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBookingWrongStatusException(final BookingWrongStatusException e) {
+        String eMessage = e.getMessage();
+        return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS", eMessage);
     }
 }
