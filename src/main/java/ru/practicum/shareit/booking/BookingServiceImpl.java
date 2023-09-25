@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -29,6 +30,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
+    @Transactional
     @Override
     public BookingDtoResponse addBooking(long userId, BookingDtoRequest bookingDtoRequest) {
         User user = getUserForBooking(userId);
@@ -46,6 +48,7 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toBookingDtoResponse(bookingRepository.save(booking));
     }
 
+    @Transactional
     @Override
     public BookingDtoResponse changeBookingStatus(long id, long userId, boolean approved) {
         Booking booking = bookingRepository.findById(id)
@@ -53,7 +56,7 @@ public class BookingServiceImpl implements BookingService {
         User user = getUserForBooking(userId);
         if (booking.getItem().getOwner().getId() != userId) {
             throw new OwnerPermissionException(
-                    String.format("Пользователь %s не является владельцем вещи", user.getName()));
+                    String.format("Пользователь c id %s не является владельцем вещи", user.getId()));
         }
         if (booking.getStatus().equals(BookingStatus.APPROVED)) {
             throw new BookingValidationException("Бронирование уже подтверждено");
@@ -73,7 +76,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
         if (!(booking.getBooker().getId() == userId || booking.getItem().getOwner().getId() == userId)) {
             throw new NotFoundException(String.format(
-                    "Пользователь %s не является владельцем вещи либо автором бронирования", user.getName()));
+                    "Пользователь c id %s не является владельцем вещи либо автором бронирования", user.getId()));
         }
         return BookingMapper.toBookingDtoResponse(booking);
     }

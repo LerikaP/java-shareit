@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.DuplicateEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -24,16 +25,18 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public UserDto addUser(UserDto userDto) {
         try {
             return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
-        } catch (RuntimeException e) {
+        } catch (DuplicateEmailException e) {
             throw new DuplicateEmailException(
                     String.format("Пользователь с email %s уже существует", userDto.getEmail()));
         }
     }
 
+    @Transactional
     @Override
     public UserDto updateUser(UserDto userDto, long id) {
         User user = userRepository.findById(id)
@@ -47,8 +50,8 @@ public class UserServiceImpl implements UserService {
             user.setEmail(email);
         }
         try {
-            return UserMapper.toUserDto(userRepository.saveAndFlush(user));
-        } catch (RuntimeException e) {
+            return UserMapper.toUserDto(userRepository.save(user));
+        } catch (DuplicateEmailException e) {
             throw new DuplicateEmailException(
                     String.format("Пользователь с email %s уже существует", userDto.getEmail()));
         }
@@ -61,6 +64,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toUserDto(user);
     }
 
+    @Transactional
     @Override
     public void deleteUserById(long id) {
         getUserById(id);
