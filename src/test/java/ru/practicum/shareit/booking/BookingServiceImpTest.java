@@ -59,7 +59,7 @@ public class BookingServiceImpTest {
     void should_create_booking() {
         userDto = userService.addUser(userDtoRequest);
         userDtoSecond = userService.addUser(userDtoRequestSecond);
-        itemService.addItem(itemDtoRequest, userDto.getId());
+        itemDto = itemService.addItem(itemDtoRequest, userDto.getId());
         BookingDtoResponse bookingDtoResponse = bookingService.addBooking(userDtoSecond.getId(), bookingDtoRequest);
 
         TypedQuery<Booking> query = em.createQuery("Select i from Booking i where i.id = :id", Booking.class);
