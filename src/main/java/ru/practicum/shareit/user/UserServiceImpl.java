@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.DuplicateEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDtoRequest;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
@@ -27,12 +28,12 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserDto addUser(UserDto userDto) {
+    public UserDto addUser(UserDtoRequest requestDto) {
         try {
-            return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
+            return UserMapper.toUserDto(userRepository.save(UserMapper.toUserFromRequest(requestDto)));
         } catch (DuplicateEmailException e) {
             throw new DuplicateEmailException(
-                    String.format("Пользователь с email %s уже существует", userDto.getEmail()));
+                    String.format("Пользователь с email %s уже существует", requestDto.getEmail()));
         }
     }
 

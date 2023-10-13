@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDtoRequest;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ public interface UserService {
 
     List<UserDto> getAllUsers();
 
-    UserDto addUser(UserDto userDto);
+    UserDto addUser(UserDtoRequest requestDto);
 
     UserDto updateUser(UserDto userDto, long id);
 

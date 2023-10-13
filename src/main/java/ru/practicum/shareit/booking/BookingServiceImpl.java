@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
@@ -17,9 +19,9 @@ import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.utils.CustomPageRequest;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,7 +84,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoResponse> getAllBookingsByUserId(long userId, String state) {
+    public List<BookingDtoResponse> getAllBookingsByUserId(long userId, String state, int from, int size) {
         getUserForBooking(userId);
         List<Booking> bookings;
         BookingState bookingState;
@@ -91,32 +93,33 @@ public class BookingServiceImpl implements BookingService {
         } catch (RuntimeException e) {
             throw new BookingWrongStatusException(String.format("Unknown state: %s", state));
         }
+        PageRequest pageRequest = new CustomPageRequest(from, size, Sort.by(Sort.Direction.DESC, "start"));
         switch (bookingState) {
             case ALL:
-                bookings = bookingRepository.findByBooker_IdOrderByStartDesc(userId);
+                bookings = bookingRepository.findByBooker_IdOrderByStartDesc(userId, pageRequest);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
-                        LocalDateTime.now(), LocalDateTime.now());
+                        LocalDateTime.now(), LocalDateTime.now(), pageRequest);
                 break;
             case PAST:
                 bookings = bookingRepository.findByBooker_IdAndEndIsBeforeOrderByStartDesc(userId,
-                        LocalDateTime.now());
+                        LocalDateTime.now(), pageRequest);
                 break;
             case FUTURE:
                 bookings = bookingRepository.findByBooker_IdAndStartIsAfterOrderByStartDesc(userId,
-                        LocalDateTime.now());
+                        LocalDateTime.now(), pageRequest);
                 break;
             case WAITING:
                 bookings = bookingRepository.findByBooker_IdAndStatusOrderByStartDesc(userId,
-                        BookingStatus.WAITING);
+                        BookingStatus.WAITING, pageRequest);
                 break;
             case REJECTED:
                 bookings = bookingRepository.findByBooker_IdAndStatusOrderByStartDesc(userId,
-                        BookingStatus.REJECTED);
+                        BookingStatus.REJECTED, pageRequest);
                 break;
             default:
-                bookings = Collections.emptyList();
+                bookings = bookingRepository.findByBooker_IdOrderByStartDesc(userId, pageRequest);
         }
         return bookings.stream()
                 .map(BookingMapper::toBookingDtoResponse)
@@ -124,7 +127,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoResponse> getAllBookingsByItemOwnerId(long ownerId, String state) {
+    public List<BookingDtoResponse> getAllBookingsByItemOwnerId(long ownerId, String state, int from, int size) {
         getUserForBooking(ownerId);
         List<Booking> bookings;
         BookingState bookingState;
@@ -133,32 +136,33 @@ public class BookingServiceImpl implements BookingService {
         } catch (RuntimeException e) {
             throw new BookingWrongStatusException(String.format("Unknown state: %s", state));
         }
+        PageRequest pageRequest = new CustomPageRequest(from, size, Sort.unsorted());
         switch (bookingState) {
             case ALL:
-                bookings = bookingRepository.findByItem_Owner_IdOrderByStartDesc(ownerId);
+                bookings = bookingRepository.findByItem_Owner_IdOrderByStartDesc(ownerId, pageRequest);
                 break;
             case CURRENT:
                 bookings = bookingRepository.findByItem_Owner_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(ownerId,
-                        LocalDateTime.now(), LocalDateTime.now());
+                        LocalDateTime.now(), LocalDateTime.now(), pageRequest);
                 break;
             case PAST:
                 bookings = bookingRepository.findByItem_Owner_IdAndEndIsBeforeOrderByStartDesc(ownerId,
-                        LocalDateTime.now());
+                        LocalDateTime.now(), pageRequest);
                 break;
             case FUTURE:
                 bookings = bookingRepository.findByItem_Owner_IdAndStartIsAfterOrderByStartDesc(ownerId,
-                        LocalDateTime.now());
+                        LocalDateTime.now(), pageRequest);
                 break;
             case WAITING:
                 bookings = bookingRepository.findByItem_Owner_IdAndStatusOrderByStartDesc(ownerId,
-                        BookingStatus.WAITING);
+                        BookingStatus.WAITING, pageRequest);
                 break;
             case REJECTED:
                 bookings = bookingRepository.findByItem_Owner_IdAndStatusOrderByStartDesc(ownerId,
-                        BookingStatus.REJECTED);
+                        BookingStatus.REJECTED, pageRequest);
                 break;
             default:
-                bookings = Collections.emptyList();
+                bookings = bookingRepository.findByItem_Owner_IdOrderByStartDesc(ownerId, pageRequest);
         }
         return bookings.stream()
                 .map(BookingMapper::toBookingDtoResponse)
