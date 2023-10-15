@@ -27,7 +27,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BookingServiceTest {
     private static BookingService bookingService;
     private static BookingRepository bookingRepository;
@@ -51,6 +50,7 @@ public class BookingServiceTest {
                 item, user, BookingStatus.WAITING);
         bookingDtoRequest = new BookingDtoRequest(item.getId(), LocalDateTime.now().plusDays(2),
                 LocalDateTime.now().plusDays(4));
+        item.setOwner(user);
     }
 
     @BeforeEach
@@ -59,10 +59,10 @@ public class BookingServiceTest {
         itemRepository = Mockito.mock(ItemRepository.class);
         userRepository = Mockito.mock(UserRepository.class);
         bookingService = new BookingServiceImpl(bookingRepository, userRepository, itemRepository);
+        item.setAvailable(Boolean.TRUE);
     }
 
     @Test
-    @Order(value = 1)
     void should_not_create_booking_with_not_found_user() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.empty());
@@ -78,9 +78,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 2)
     void should_not_create_booking_with_owner() {
-        item.setOwner(user);
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
         when(itemRepository.findById(anyLong()))
@@ -95,7 +93,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 3)
     void should_not_create_booking_with_not_available_item() {
         item.setAvailable(Boolean.FALSE);
         when(userRepository.findById(anyLong()))
@@ -112,9 +109,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 4)
     void should_not_change_status_by_not_owner() {
-        item.setAvailable(Boolean.TRUE);
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(secondUser));
         when(itemRepository.findById(anyLong()))
@@ -130,7 +125,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 5)
     void should_not_change_status_with_approved_status() {
         nextBooking.setStatus(BookingStatus.APPROVED);
         when(userRepository.findById(anyLong()))
@@ -147,7 +141,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 6)
     void should_not_get_booking_by_wrong_user_id() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(secondUser));
@@ -165,7 +158,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 7)
     void should_change_status_to_rejected() {
         nextBooking.setStatus(BookingStatus.REJECTED);
         when(userRepository.findById(anyLong()))
@@ -186,7 +178,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 8)
     void should_find_all_bookings_by_user_id() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(secondUser));
@@ -206,7 +197,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 9)
     void should_find_all_bookings_by_user_id_and_current_state() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(secondUser));
@@ -221,7 +211,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 10)
     void should_find_all_bookings_by_user_id_and_past_state() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(secondUser));
@@ -240,7 +229,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 11)
     void should_find_all_bookings_by_user_id_and_future_state() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(secondUser));
@@ -259,7 +247,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 12)
     void should_find_all_bookings_by_user_id_and_rejected_status() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(secondUser));
@@ -278,7 +265,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 13)
     void should_not_return_bookings_by_user_id_and_wrong_state() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(secondUser));
@@ -294,7 +280,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 14)
     void should_find_all_bookings_by_item_owner_id() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
@@ -314,7 +299,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 15)
     void should_find_all_bookings_by_item_owner_id_and_current_state() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
@@ -330,7 +314,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 16)
     void should_find_all_bookings_by_item_owner_id_and_past_state() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
@@ -349,7 +332,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 17)
     void should_find_all_bookings_by_item_owner_id_and_future_state() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
@@ -368,7 +350,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 18)
     void should_find_all_bookings_by_item_owner_id_and_rejected_status() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
@@ -387,7 +368,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    @Order(value = 19)
     void should_not_return_bookings_by_item_owner_id_and_wrong_state() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));

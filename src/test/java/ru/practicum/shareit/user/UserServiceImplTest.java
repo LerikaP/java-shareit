@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserServiceImplTest {
     private final UserService userService;
     private final EntityManager em;
@@ -29,16 +28,18 @@ public class UserServiceImplTest {
     private static UserDtoRequest userDtoRequest;
 
     @BeforeAll
-    static void setUp() {
+    static void beforeAll() {
         userDto = new UserDto(1L, "user 1","user1@mail.com");
         userDtoRequest = new UserDtoRequest("user 1", "user1@mail.com");
     }
 
-    @Test
-    @Order(value = 1)
-    void should_create_user() {
+    @BeforeEach
+    void setUp() {
         userDto = userService.addUser(userDtoRequest);
+    }
 
+    @Test
+    void should_create_user() {
         TypedQuery<User> query = em.createQuery("Select i from User i where i.id = :id", User.class);
         User user = query.setParameter("id", userDto.getId()).getSingleResult();
 
@@ -48,10 +49,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(value = 2)
     void should_update_user() {
-        userDto = userService.addUser(userDtoRequest);
-
         UserDto userDtoForUpdate = new UserDto(2L, "new name", "user1@mail.com");
 
         userService.updateUser(userDtoForUpdate, userDto.getId());
@@ -64,10 +62,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(value = 3)
     void should_get_user_by_id() {
-        userDto = userService.addUser(userDtoRequest);
-
         UserDto user = userService.getUserById(userDto.getId());
 
         assertThat(userDto.getId(), equalTo(user.getId()));
@@ -76,9 +71,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(value = 4)
     void should_return_all_users() {
-        userDto = userService.addUser(userDtoRequest);
         UserDto newUser = userService.addUser(new UserDtoRequest("user 2", "user2@mail.com"));
 
         List<UserDto> userDtos = userService.getAllUsers();
@@ -96,10 +89,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @Order(value = 5)
     void should_delete_user() {
-        userDto = userService.addUser(userDtoRequest);
-
         assertThat(userService.getAllUsers().size(), equalTo(1));
 
         userService.deleteUserById(userDto.getId());

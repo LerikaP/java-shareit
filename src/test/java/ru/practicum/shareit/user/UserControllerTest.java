@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,8 @@ public class UserControllerTest {
     }
 
     @Test
-    void should_create_user() throws Exception {
+    @SneakyThrows
+    void should_create_user() {
         when(userService.addUser(any(UserDtoRequest.class)))
                 .thenReturn(userDto);
 
@@ -54,7 +56,8 @@ public class UserControllerTest {
     }
 
     @Test
-    void should_update_user() throws Exception {
+    @SneakyThrows
+    void should_update_user() {
         when(userService.updateUser(any(UserDto.class), anyLong()))
                 .thenReturn(userDto);
 
@@ -69,7 +72,8 @@ public class UserControllerTest {
     }
 
     @Test
-    void should_delete_user_by_id() throws Exception {
+    @SneakyThrows
+    void should_delete_user_by_id() {
         doNothing().when(userService).deleteUserById(anyLong());
 
         mockMvc.perform(delete("/users/1")
@@ -79,7 +83,8 @@ public class UserControllerTest {
     }
 
     @Test
-    void should_get_user_by_id() throws Exception {
+    @SneakyThrows
+    void should_get_user_by_id() {
         when(userService.getUserById(anyLong()))
                 .thenReturn(userDto);
 
@@ -94,7 +99,8 @@ public class UserControllerTest {
     }
 
     @Test
-    void should_get_all_users() throws Exception {
+    @SneakyThrows
+    void should_get_all_users() {
         List<UserDto> expectedResult = Collections.singletonList(userDto);
         when(userService.getAllUsers())
                 .thenReturn(expectedResult);

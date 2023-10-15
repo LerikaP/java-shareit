@@ -17,7 +17,6 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utils.CustomPageRequest;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,14 +50,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestResponseDto> getAllRequestsByUserId(long userId) {
         findUserForRequest(userId);
         List<ItemRequest> requests = itemRequestRepository.findByRequestor_IdOrderByCreatedDesc(userId);
-        List<ItemRequestResponseDto> requestsDto = new ArrayList<>();
-        for (ItemRequest itemRequest : requests) {
-            List<ItemDtoWithRequest> items = findItems(itemRequest.getId());
-            ItemRequestResponseDto itemRequestResponseDto =
-                    ItemRequestMapper.itemRequestResponseDto(itemRequest, items);
-            requestsDto.add(itemRequestResponseDto);
-        }
-        return requestsDto;
+        return requests
+                .stream()
+                .map(request -> ItemRequestMapper.itemRequestResponseDto(request, findItems(request.getId())))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -67,14 +62,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         PageRequest pageRequest = new CustomPageRequest(from, size,Sort.unsorted());
         List<ItemRequest> requests = itemRequestRepository.findByRequestor_IdIsNotOrderByCreatedDesc(userId,
                 pageRequest);
-        List<ItemRequestResponseDto> requestsDto = new ArrayList<>();
-        for (ItemRequest itemRequest : requests) {
-            List<ItemDtoWithRequest> items = findItems(itemRequest.getId());
-            ItemRequestResponseDto itemRequestResponseDto =
-                    ItemRequestMapper.itemRequestResponseDto(itemRequest, items);
-            requestsDto.add(itemRequestResponseDto);
-        }
-        return requestsDto;
+        return requests
+                .stream()
+                .map(request -> ItemRequestMapper.itemRequestResponseDto(request, findItems(request.getId())))
+                .collect(Collectors.toList());
     }
 
     private List<ItemDtoWithRequest> findItems(long id) {

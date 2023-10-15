@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserServiceTest {
     private static UserService userService;
     private static UserRepository userRepository;
@@ -36,13 +35,14 @@ public class UserServiceTest {
     void setUp() {
         userRepository = mock(UserRepository.class);
         userService = new UserServiceImpl(userRepository);
+        user.setName("user 1");
     }
 
     @Test
-    @Order(value = 1)
     void should_create_user() {
         when(userRepository.save(any(User.class)))
                 .thenReturn(user);
+
         UserDto userDtoForTest = userService.addUser(userDtoRequest);
 
         assertThat(userDtoForTest)
@@ -53,7 +53,6 @@ public class UserServiceTest {
     }
 
     @Test
-    @Order(value = 2)
     void should_find_all_users() {
         final List<User> users = new ArrayList<>(Collections.singletonList(user));
         when(userRepository.findAll())
@@ -73,7 +72,6 @@ public class UserServiceTest {
     }
 
     @Test
-    @Order(value = 3)
     void should_update_user() {
         user.setName("new user 1");
         UserDto newUserDto = new UserDto(1L, "new user 1", "user1@email.com");
@@ -92,7 +90,6 @@ public class UserServiceTest {
     }
 
     @Test
-    @Order(value = 4)
     void should_not_add_user_with_duplicate_email() {
         when(userRepository.save(any(User.class)))
                 .thenThrow(new DuplicateEmailException("Пользователь с указанным email уже существует"));
@@ -105,7 +102,6 @@ public class UserServiceTest {
     }
 
     @Test
-    @Order(value = 5)
     void should_not_update_user_with_duplicate_email() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
@@ -118,6 +114,4 @@ public class UserServiceTest {
         assertEquals(String.format("Пользователь с email %s уже существует", userDto.getEmail()), e.getMessage());
         verify(userRepository, times(1)).save(any(User.class));
     }
-
-
 }

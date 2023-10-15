@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.practicum.shareit.booking.dto.BookingDtoRequest;
 import ru.practicum.shareit.booking.dto.BookingDtoResponse;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -44,16 +47,17 @@ public class BookingControllerTest {
     static void setUp() {
         UserDto userDto = new UserDto(1L, "user 1", "user1@email.com");
         ItemDto itemDto = new ItemDto(1L, "item", "description", Boolean.TRUE);
-        bookingDtoRequest = new BookingDtoRequest(1L,
-                LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2));
-        bookingDtoResponse = new BookingDtoResponse(1L, LocalDateTime.now().plusDays(1),
-                LocalDateTime.now().plusDays(2), BookingStatus.WAITING, userDto, itemDto);
-        approvedBookingDtoResponse = new BookingDtoResponse(1L, LocalDateTime.now().plusDays(1),
-                LocalDateTime.now().plusDays(2), BookingStatus.APPROVED, userDto, itemDto);
+        LocalDateTime now = LocalDateTime.now();
+        bookingDtoRequest = new BookingDtoRequest(1L, now.plusDays(1), now.plusDays(2));
+        bookingDtoResponse = new BookingDtoResponse(1L, now.plusDays(1), now.plusDays(2),
+                BookingStatus.WAITING, userDto, itemDto);
+        approvedBookingDtoResponse = new BookingDtoResponse(1L, now.plusDays(1),now.plusDays(2),
+                BookingStatus.APPROVED, userDto, itemDto);
     }
 
     @Test
-    void should_create_booking() throws Exception {
+    @SneakyThrows
+    void should_create_booking() {
         when(bookingService.addBooking(anyLong(), any(BookingDtoRequest.class)))
                 .thenReturn(bookingDtoResponse);
 
@@ -62,15 +66,13 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(bookingDtoRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(bookingDtoResponse.getId()))
-                .andExpect(jsonPath("$.status").value(bookingDtoResponse.getStatus().toString()))
-                .andExpect(jsonPath("$.booker.id").value(bookingDtoResponse.getBooker().getId()))
-                .andExpect(jsonPath("$.item.id").value(bookingDtoResponse.getItem().getId()));
+                .andExpectAll(idMatcher(), statusMather(), bookerIdMatcher(), itemIdMatcher());
         verify(bookingService, times(1)).addBooking(anyLong(), any(BookingDtoRequest.class));
     }
 
     @Test
-    void should_change_booking_status() throws Exception {
+    @SneakyThrows
+    void should_change_booking_status() {
         when(bookingService.changeBookingStatus(anyLong(), anyLong(), anyBoolean()))
                 .thenReturn(bookingDtoResponse);
 
@@ -78,15 +80,13 @@ public class BookingControllerTest {
                         .header(USER_ID_HEADER, "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(bookingDtoResponse.getId()))
-                .andExpect(jsonPath("$.status").value(bookingDtoResponse.getStatus().toString()))
-                .andExpect(jsonPath("$.booker.id").value(bookingDtoResponse.getBooker().getId()))
-                .andExpect(jsonPath("$.item.id").value(bookingDtoResponse.getItem().getId()));
+                .andExpectAll(idMatcher(), statusMather(), bookerIdMatcher(), itemIdMatcher());
         verify(bookingService, times(1)).changeBookingStatus(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
-    void should_get_booking_by_id() throws Exception {
+    @SneakyThrows
+    void should_get_booking_by_id() {
         when(bookingService.getBookingById(anyLong(), anyLong()))
                 .thenReturn(bookingDtoResponse);
 
@@ -94,15 +94,13 @@ public class BookingControllerTest {
                         .header(USER_ID_HEADER, "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(bookingDtoResponse.getId()))
-                .andExpect(jsonPath("$.status").value(bookingDtoResponse.getStatus().toString()))
-                .andExpect(jsonPath("$.booker.id").value(bookingDtoResponse.getBooker().getId()))
-                .andExpect(jsonPath("$.item.id").value(bookingDtoResponse.getItem().getId()));
+                .andExpectAll(idMatcher(), statusMather(), bookerIdMatcher(), itemIdMatcher());
         verify(bookingService, times(1)).getBookingById(anyLong(), anyLong());
     }
 
     @Test
-    void should_get_bookings_by_user_id() throws Exception {
+    @SneakyThrows
+    void should_get_bookings_by_user_id() {
         List<BookingDtoResponse> expectedResult = Collections.singletonList(bookingDtoResponse);
         when(bookingService.getAllBookingsByUserId(anyLong(), anyString(), anyInt(), anyInt()))
                 .thenReturn(expectedResult);
@@ -118,7 +116,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    void should_get_all_bookings_by_item_owner_id() throws Exception {
+    @SneakyThrows
+    void should_get_all_bookings_by_item_owner_id() {
         List<BookingDtoResponse> expectedResult = Collections.singletonList(approvedBookingDtoResponse);
         when(bookingService.getAllBookingsByItemOwnerId(anyLong(), anyString(), anyInt(), anyInt()))
                 .thenReturn(expectedResult);
@@ -133,4 +132,19 @@ public class BookingControllerTest {
                 anyInt(), anyInt());
     }
 
+    private ResultMatcher idMatcher() {
+        return jsonPath("$.id").value(bookingDtoResponse.getId());
+    }
+
+    private ResultMatcher statusMather() {
+            return jsonPath("$.status").value(bookingDtoResponse.getStatus().toString());
+    }
+
+    private ResultMatcher bookerIdMatcher() {
+        return jsonPath("$.booker.id").value(bookingDtoResponse.getBooker().getId());
+    }
+
+    private ResultMatcher itemIdMatcher() {
+        return MockMvcResultMatchers.jsonPath("$.item.id").value(bookingDtoResponse.getItem().getId());
+    }
 }

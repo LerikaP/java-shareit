@@ -28,7 +28,6 @@ import static org.hamcrest.core.IsEqual.equalTo;
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ItemServiceImplTest {
     private final ItemService itemService;
     private final UserService userService;
@@ -42,7 +41,7 @@ public class ItemServiceImplTest {
     private static UserDtoRequest userDtoRequest;
 
     @BeforeAll
-    static void setUp() {
+    static void beforeAll() {
         request = new ItemRequestDto("text");
         itemDto = new ItemDto(1L, "item", "description", Boolean.TRUE, 1L);
         userDto = new UserDto(1L, "user 1","user1@mail.com");
@@ -50,13 +49,16 @@ public class ItemServiceImplTest {
         userDtoRequest = new UserDtoRequest("user 1","user1@mail.com");
     }
 
-    @Test
-    @Order(value = 1)
-    void should_create_item() {
+    @BeforeEach
+    void setUp() {
         userDto = userService.addUser(userDtoRequest);
-        itemRequestService.addItemRequest(request, userDto.getId());
+        requestResponseDto = itemRequestService.addItemRequest(request, userDto.getId());
+        itemDto.setRequestId(requestResponseDto.getId());
         itemDto = itemService.addItem(itemDtoRequest, userDto.getId());
+    }
 
+    @Test
+    void should_create_item() {
         TypedQuery<Item> query = em.createQuery("Select i from Item i where i.id = :id", Item.class);
         Item item = query.setParameter("id", itemDto.getId()).getSingleResult();
 
@@ -67,13 +69,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    @Order(value = 2)
     void should_update_item() {
-        userDto = userService.addUser(userDtoRequest);
-        requestResponseDto = itemRequestService.addItemRequest(request, userDto.getId());
-        itemDto.setRequestId(requestResponseDto.getId());
-        itemDto = itemService.addItem(itemDtoRequest, userDto.getId());
-
         ItemDto updateItemDto = new ItemDto(2L, "new item", "description", Boolean.TRUE, 1L);
 
         itemService.updateItem(updateItemDto, itemDto.getId(), userDto.getId());
@@ -85,13 +81,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    @Order(value = 3)
     void should_get_item_by_id() {
-        userDto = userService.addUser(userDtoRequest);
-        requestResponseDto = itemRequestService.addItemRequest(request, userDto.getId());
-        itemDto.setRequestId(requestResponseDto.getId());
-        itemDto = itemService.addItem(itemDtoRequest, userDto.getId());
-
         ItemDtoWithBooking item = itemService.getItemById(itemDto.getId(), userDto.getId());
 
         assertThat(item.getId(), equalTo(itemDto.getId()));
@@ -101,13 +91,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    @Order(value = 4)
     void should_return_all_items_by_owner_id() {
-        userDto = userService.addUser(userDtoRequest);
-        requestResponseDto = itemRequestService.addItemRequest(request, userDto.getId());
-        itemDto.setRequestId(requestResponseDto.getId());
-        itemDto = itemService.addItem(itemDtoRequest, userDto.getId());
-
         ItemDto newItemDto = itemService.addItem(new ItemDtoRequest("new item", "description",
                 Boolean.TRUE, requestResponseDto.getId()), userDto.getId());
 
@@ -126,13 +110,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    @Order(value = 5)
     void should_delete_item() {
-        userDto = userService.addUser(userDtoRequest);
-        requestResponseDto = itemRequestService.addItemRequest(request, userDto.getId());
-        itemDto.setRequestId(requestResponseDto.getId());
-        itemDto = itemService.addItem(itemDtoRequest, userDto.getId());
-
         assertThat(itemService.getAllItemsByUserId(userDto.getId(), 0, 10).size(), equalTo(1));
 
         itemService.deleteItemById(itemDto.getId());

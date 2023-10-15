@@ -25,7 +25,6 @@ import static org.hamcrest.core.IsEqual.equalTo;
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ItemRequestServiceImplTest {
     private final ItemRequestService requestService;
     private final UserService userService;
@@ -38,18 +37,22 @@ public class ItemRequestServiceImplTest {
     private static ItemRequestResponseDto requestResponseDto;
 
     @BeforeAll
-    static void setUp() {
+    static void beforeAll() {
         requestDto = new ItemRequestDto("request description");
         userDtoRequest = new UserDtoRequest("user 1", "user1@email.com");
         secondUserDtoRequest = new UserDtoRequest("user 2", "user2@email.com");
     }
 
-    @Test
-    @Order(value = 1)
-    void should_create_user() {
+    @BeforeEach
+    void setUp() {
         userDto = userService.addUser(userDtoRequest);
         requestResponseDto = requestService.addItemRequest(requestDto, userDto.getId());
+        secondUserDto = userService.addUser(secondUserDtoRequest);
+        requestService.addItemRequest(requestDto, secondUserDto.getId());
+    }
 
+    @Test
+    void should_create_user() {
         TypedQuery<ItemRequest> query = em.createQuery("Select i from ItemRequest i where i.id = :id",
                 ItemRequest.class);
         ItemRequest request = query.setParameter("id", requestResponseDto.getId()).getSingleResult();
@@ -58,11 +61,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    @Order(value = 2)
     void should_get_item_request_by_id() {
-        userDto = userService.addUser(userDtoRequest);
-        requestResponseDto = requestService.addItemRequest(requestDto, userDto.getId());
-
         ItemRequestResponseDto request = requestService.getItemRequestById(requestResponseDto.getId(), userDto.getId());
 
         assertThat(request.getDescription(), equalTo(requestDto.getDescription()));
@@ -70,13 +69,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    @Order(value = 3)
     void should_get_all_requests_by_user_id() {
-        userDto = userService.addUser(userDtoRequest);
-        secondUserDto = userService.addUser(secondUserDtoRequest);
-        requestService.addItemRequest(requestDto, userDto.getId());
-        requestService.addItemRequest(requestDto, secondUserDto.getId());
-
         List<ItemRequestResponseDto> responseDtos = requestService.getAllRequestsByUserId(userDto.getId());
 
         Assertions.assertThat(responseDtos)
@@ -87,12 +80,8 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    @Order(value = 4)
     void should_get_all_requests() {
-        userDto = userService.addUser(userDtoRequest);
-        secondUserDto = userService.addUser(secondUserDtoRequest);
         ItemRequestDto secondRequestDto = new ItemRequestDto("description 2");
-        requestService.addItemRequest(requestDto, userDto.getId());
         requestService.addItemRequest(secondRequestDto, userDto.getId());
 
         List<ItemRequestResponseDto> responseDtos =

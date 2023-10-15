@@ -5,7 +5,7 @@ import org.springframework.data.domain.Sort;
 
 public class CustomPageRequest extends PageRequest {
 
-    int from;
+    private int from;
 
     public CustomPageRequest(int from, int size, Sort sort) {
         super(from / size, size, sort);

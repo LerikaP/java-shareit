@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    void should_create_item() throws Exception {
+    @SneakyThrows
+    void should_create_item() {
         when(itemService.addItem(any(ItemDtoRequest.class), anyLong()))
                 .thenReturn(itemDto);
 
@@ -63,7 +65,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    void should_update_item() throws Exception {
+    @SneakyThrows
+    void should_update_item() {
         when(itemService.updateItem(any(ItemDto.class), anyLong(), anyLong()))
                 .thenReturn(itemDto);
 
@@ -80,7 +83,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    void should_delete_item() throws Exception {
+    @SneakyThrows
+    void should_delete_item() {
         doNothing().when(itemService).deleteItemById(anyLong());
 
         mockMvc.perform(delete("/items/1")
@@ -90,7 +94,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    void should_get_item_by_id() throws Exception {
+    @SneakyThrows
+    void should_get_item_by_id() {
         when(itemService.getItemById(anyLong(), anyLong()))
                 .thenReturn(itemDtoWithBooking);
 
@@ -107,7 +112,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    void should_get_all_items_by_user_id() throws Exception {
+    @SneakyThrows
+    void should_get_all_items_by_user_id() {
         List<ItemDtoWithBooking> expectedResult = Collections.singletonList(itemDtoWithBooking);
         when(itemService.getAllItemsByUserId(anyLong(), anyInt(), anyInt()))
                 .thenReturn(expectedResult);
@@ -122,7 +128,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    void should_search_items() throws Exception {
+    @SneakyThrows
+    void should_search_items() {
         List<ItemDto> expectedResult = Collections.singletonList(itemDto);
         when(itemService.searchItem(anyString(), anyInt(), anyInt()))
                 .thenReturn(expectedResult);
@@ -137,7 +144,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    void should_create_comment() throws Exception {
+    @SneakyThrows
+    void should_create_comment() {
         CommentRequestDto commentRequestDto = new CommentRequestDto("text");
         CommentResponseDto commentResponseDto = new CommentResponseDto(1L, "text", "user 1",
                 LocalDateTime.now());

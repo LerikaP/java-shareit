@@ -28,7 +28,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ItemServiceTest {
     private static ItemService itemService;
     private static ItemRepository itemRepository;
@@ -58,6 +57,7 @@ public class ItemServiceTest {
         itemRequest = new ItemRequest(1L, "description", user, currentTime);
         itemDto = new ItemDto(1L, "item", "description", Boolean.TRUE, 1L);
         itemDtoRequest = new ItemDtoRequest("item", "description", Boolean.TRUE, 1L);
+        item.setOwner(user);
     }
 
     @BeforeEach
@@ -69,12 +69,11 @@ public class ItemServiceTest {
         bookingRepository = Mockito.mock(BookingRepository.class);
         itemService = new ItemServiceImpl(itemRepository, userRepository, bookingRepository,
                 commentRepository, itemRequestRepository);
+        item.setName("item");
     }
 
     @Test
-    @Order(value = 1)
     void should_create_item() {
-        item.setOwner(user);
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
         when(itemRequestRepository.findById(anyLong()))
@@ -93,7 +92,6 @@ public class ItemServiceTest {
     }
 
     @Test
-    @Order(value = 2)
     void should_update_item() {
         Item updateItem = new Item(1L, "new name", "description", Boolean.TRUE);
         ItemDto updateItemDto = new ItemDto(1L, "new name", "description", Boolean.TRUE, 1L);
@@ -116,7 +114,6 @@ public class ItemServiceTest {
     }
 
     @Test
-    @Order(value = 3)
     void should_find_all_items_by_owner_id() {
         final List<Item> items = new ArrayList<>(Collections.singleton(item));
 
@@ -139,7 +136,6 @@ public class ItemServiceTest {
     }
 
     @Test
-    @Order(value = 4)
     void should_find_item_by_id() {
         when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.of(item));
@@ -163,7 +159,6 @@ public class ItemServiceTest {
     }
 
     @Test
-    @Order(value = 5)
     void should_search_items_by_text() {
         final List<Item> items = new ArrayList<>(Collections.singleton(item));
 
@@ -185,7 +180,6 @@ public class ItemServiceTest {
     }
 
     @Test
-    @Order(value = 6)
     void should_create_comment() {
         CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
         when(userRepository.findById(anyLong()))
@@ -208,7 +202,6 @@ public class ItemServiceTest {
     }
 
     @Test
-    @Order(value = 7)
     void should_not_create_comment_with_no_bookings() {
         CommentRequestDto commentRequestDto = new CommentRequestDto("comment");
         when(userRepository.findById(anyLong()))
@@ -226,7 +219,6 @@ public class ItemServiceTest {
     }
 
     @Test
-    @Order(value = 8)
     void should_not_update_item_by_not_owner() {
         User notOwnerUser = new User(2L, "user 2", "user@@mail.com");
         when(userRepository.findById(anyLong()))
@@ -246,7 +238,6 @@ public class ItemServiceTest {
 
 
     @Test
-    @Order(value = 9)
     void should_return_empty_list_with_empty_search_text() {
         final List<Item> items = Collections.emptyList();
 

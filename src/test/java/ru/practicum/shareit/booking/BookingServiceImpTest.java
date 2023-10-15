@@ -28,7 +28,6 @@ import static org.hamcrest.core.IsEqual.equalTo;
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BookingServiceImpTest {
     private final BookingService bookingService;
     private final UserService userService;
@@ -54,13 +53,16 @@ public class BookingServiceImpTest {
         userDtoRequestSecond = new UserDtoRequest("user 2", "user2@email.com");
     }
 
-    @Test
-    @Order(value = 1)
-    void should_create_booking() {
+    @BeforeEach
+    void setUp() {
         userDto = userService.addUser(userDtoRequest);
         userDtoSecond = userService.addUser(userDtoRequestSecond);
         itemDto = itemService.addItem(itemDtoRequest, userDto.getId());
         bookingDtoRequest.setItemId(itemDto.getId());
+    }
+
+    @Test
+    void should_create_booking() {
         BookingDtoResponse bookingDtoResponse = bookingService.addBooking(userDtoSecond.getId(), bookingDtoRequest);
 
         TypedQuery<Booking> query = em.createQuery("Select i from Booking i where i.id = :id", Booking.class);
@@ -72,12 +74,7 @@ public class BookingServiceImpTest {
     }
 
     @Test
-    @Order(value = 2)
     void should_change_booking_status() {
-        userDto = userService.addUser(userDtoRequest);
-        userDtoSecond = userService.addUser(userDtoRequestSecond);
-        itemDto = itemService.addItem(itemDtoRequest, userDto.getId());
-        bookingDtoRequest.setItemId(itemDto.getId());
         BookingDtoResponse bookingDtoResponse = bookingService.addBooking(userDtoSecond.getId(), bookingDtoRequest);
         bookingService.changeBookingStatus(bookingDtoResponse.getId(), userDto.getId(), Boolean.TRUE);
 
@@ -90,12 +87,7 @@ public class BookingServiceImpTest {
     }
 
     @Test
-    @Order(value = 3)
     void should_get_booking_by_id() {
-        userDto = userService.addUser(userDtoRequest);
-        userDtoSecond = userService.addUser(userDtoRequestSecond);
-        itemDto = itemService.addItem(itemDtoRequest, userDto.getId());
-        bookingDtoRequest.setItemId(itemDto.getId());
         BookingDtoResponse bookingDtoResponse = bookingService.addBooking(userDtoSecond.getId(), bookingDtoRequest);
 
         BookingDtoResponse bookingDtoForTest = bookingService.getBookingById(bookingDtoResponse.getId(),
@@ -107,12 +99,7 @@ public class BookingServiceImpTest {
     }
 
     @Test
-    @Order(value = 4)
     void should_get_all_bookings_by_user_id() {
-        userDto = userService.addUser(userDtoRequest);
-        userDtoSecond = userService.addUser(userDtoRequestSecond);
-        itemDto = itemService.addItem(itemDtoRequest, userDto.getId());
-        bookingDtoRequest.setItemId(itemDto.getId());
         BookingDtoResponse bookingDtoResponse = bookingService.addBooking(userDtoSecond.getId(), bookingDtoRequest);
 
         BookingDtoResponse bookingDtoResponseSecond = bookingService.addBooking(userDtoSecond.getId(),
@@ -134,12 +121,7 @@ public class BookingServiceImpTest {
     }
 
     @Test
-    @Order(value = 5)
     void should_get_all_bookings_by_item_owner_id() {
-        userDto = userService.addUser(userDtoRequest);
-        userDtoSecond = userService.addUser(userDtoRequestSecond);
-        itemDto = itemService.addItem(itemDtoRequest, userDto.getId());
-        bookingDtoRequest.setItemId(itemDto.getId());
         BookingDtoResponse bookingDtoResponse = bookingService.addBooking(userDtoSecond.getId(), bookingDtoRequest);
 
         List<BookingDtoResponse> bookingsDtos = bookingService.getAllBookingsByItemOwnerId(userDto.getId(),

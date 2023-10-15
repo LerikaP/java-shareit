@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void should_create_request() throws Exception {
+    @SneakyThrows
+    void should_create_request() {
         when(itemRequestService.addItemRequest(any(ItemRequestDto.class), anyLong()))
                 .thenReturn(itemRequestResponseDto);
 
@@ -63,7 +65,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void should_get_request_by_id() throws Exception {
+    @SneakyThrows
+    void should_get_request_by_id() {
         when(itemRequestService.getItemRequestById(anyLong(), anyLong()))
                 .thenReturn(itemRequestResponseDto);
 
@@ -77,7 +80,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void should_get_all_requests() throws Exception {
+    @SneakyThrows
+    void should_get_all_requests() {
         List<ItemRequestResponseDto> expectedResult = Collections.singletonList(itemRequestResponseDto);
         when(itemRequestService.getAllRequests(anyLong(), anyInt(), anyInt()))
                 .thenReturn(expectedResult);
@@ -91,7 +95,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void should_get_all_requests_by_user_id() throws Exception {
+    @SneakyThrows
+    void should_get_all_requests_by_user_id() {
         List<ItemRequestResponseDto> expectedResult = Collections.emptyList();
         when(itemRequestService.getAllRequestsByUserId(anyLong()))
                 .thenReturn(expectedResult);
