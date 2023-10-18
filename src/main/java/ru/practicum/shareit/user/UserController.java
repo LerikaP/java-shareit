@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDtoRequest;
 import ru.practicum.shareit.utils.Create;
 import ru.practicum.shareit.utils.Update;
 
@@ -29,7 +30,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto addUser(@Validated(Create.class) @RequestBody UserDto userDto) {
+    public UserDto addUser(@Validated(Create.class) @RequestBody UserDtoRequest userDto) {
         return userService.addUser(userDto);
     }
 

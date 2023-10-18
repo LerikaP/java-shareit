@@ -3,19 +3,16 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.CommentRequestDto;
-import ru.practicum.shareit.item.dto.CommentResponseDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoWithBooking;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.utils.Create;
 import ru.practicum.shareit.utils.Update;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -29,17 +26,21 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDtoWithBooking> getAllItemsByUserId(@RequestHeader(USER_ID_HEADER) long userId) {
-        return itemService.getAllItemsByUserId(userId);
+    public List<ItemDtoWithBooking> getAllItemsByUserId(@RequestParam(defaultValue = "0") @Min(0) int from,
+                                                        @RequestParam(defaultValue = "10") @Min(1) @Max(20) int size,
+                                                        @RequestHeader(USER_ID_HEADER) long userId) {
+        return itemService.getAllItemsByUserId(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestParam String text) {
-        return itemService.searchItem(text);
+    public List<ItemDto> searchItem(@PositiveOrZero @RequestParam(defaultValue = "0") int from,
+                                    @PositiveOrZero @RequestParam(defaultValue = "10") int size,
+                                    @RequestParam String text) {
+        return itemService.searchItem(text, from, size);
     }
 
     @PostMapping
-    public ItemDto addItem(@Validated(Create.class) @RequestBody ItemDto itemDto,
+    public ItemDto addItem(@Validated(Create.class) @RequestBody ItemDtoRequest itemDto,
                            @RequestHeader(USER_ID_HEADER) long userId) {
         return itemService.addItem(itemDto, userId);
     }
