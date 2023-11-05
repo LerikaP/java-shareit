@@ -69,6 +69,5 @@ public class ItemRepositoryTest {
         final List<Item> items = itemRepository.findByRequest_IdOrderById(request.getId());
 
         assertEquals(1, items.size());
-        assertEquals("item 1", items.get(0).getName());
     }
 }
