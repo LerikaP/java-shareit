@@ -31,14 +31,14 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Object> addUser(@Validated(Create.class) @RequestBody UserRequestDto requestDto) {
-        log.info("Creating user {}", requestDto);
+        log.info("Creating user {}", requestDto.getEmail());
         return userClient.addUser(requestDto);
     }
 
     @PatchMapping("{userId}")
     public ResponseEntity<Object> updateUser(@PathVariable long userId,
                                              @Validated(Update.class) @RequestBody UserRequestDto requestDto) {
-        log.info("Update user {}, userId={}", requestDto, userId);
+        log.info("Update user {}", userId);
         return userClient.updateUser(userId, requestDto);
     }
 

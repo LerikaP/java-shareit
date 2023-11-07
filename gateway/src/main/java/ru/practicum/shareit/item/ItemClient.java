@@ -16,6 +16,10 @@ import java.util.Map;
 @Service
 public class ItemClient extends BaseClient {
     private static final String API_PREFIX = "/items";
+    @Value("${pagination.from.size.path}")
+    private String fromSizePath;
+    @Value("${item.search.path}")
+    private String searchPath;
 
     @Autowired
     public ItemClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -36,7 +40,7 @@ public class ItemClient extends BaseClient {
                 "from", from,
                 "size", size
         );
-        return get("?from={from}&size={size}", userId, parameters);
+        return get(fromSizePath, userId, parameters);
     }
 
 
@@ -59,7 +63,7 @@ public class ItemClient extends BaseClient {
                 "from", from,
                 "size", size
         );
-        return get("/search?text={text}&from={from}&size={size}", null, parameters);
+        return get(searchPath, null, parameters);
     }
 
     public ResponseEntity<Object> addComment(long itemId, long userId, CommentRequestDto requestDto) {

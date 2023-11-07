@@ -17,6 +17,9 @@ import java.util.Map;
 public class BookingClient extends BaseClient {
     private static final String API_PREFIX = "/bookings";
 
+    @Value("${bookings.get.with.status.path}")
+    private String getAllPath;
+
     @Autowired
     public BookingClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
@@ -33,7 +36,7 @@ public class BookingClient extends BaseClient {
                 "from", from,
                 "size", size
         );
-        return get("?state={state}&from={from}&size={size}", userId, parameters);
+        return get(getAllPath, userId, parameters);
     }
 
 
@@ -59,6 +62,6 @@ public class BookingClient extends BaseClient {
                 "from", from,
                 "size", size
         );
-        return get("/owner/?state={state}&from={from}&size={size}", userId, parameters);
+        return get("/owner/" + getAllPath, userId, parameters);
     }
 }
